@@ -21,7 +21,7 @@
                 <label for="">Nombre Usuario</label>
                 <input type="text" name="nombreUsuario" id="nombreUsuario" required/><br>
                 <label for="">Fecha</label>
-                <input type="text" name="accDate" id="accDate" required/><br>
+                <input type="text" name="fecha" id="fecha" required/><br>
                 <label for="">Saldo</label>
                 <input type="text" name="saldo" id="saldo"/><br>
                 <label for="">Tipo Cuenta:</label>
@@ -49,7 +49,7 @@
                     </optgroup>
                 </select><br>
                 <input type="button" id="create" class="create" value="Crear" onclick="front.validaUsuario()"/>
-                <label for="" id="mssg" class="mssg"></label><br>
+                <label for="" id="mensaje" class="mensaje"></label><br>
             </form><br>
         </fieldset>
         <fieldset class="serverDataFilter">
@@ -64,8 +64,8 @@
                     <option value="Obelix">Obelix</option>
                     <option value="Panoramix">Panoramix</option>
                 </select>
-                <label for="accTypeFilter">Tipo de Cuenta</label>
-                <select id="accTypeFilter" class="accTypeFilter" onchange="front.fillData()">
+                <label for="filtroTipoCuenta">Tipo de Cuenta</label>
+                <select id="filtroTipoCuenta" class="filtroTipoCuenta" onchange="front.fillData()">
                     <optgroup label="Cuentas">
                         <option value="all">Todas</option>
                         <option value="newbie">Newbie</option>
@@ -80,7 +80,7 @@
                         <th id="nombreServidor" class="nombreServidor">Nombre servidor:</th>
                         <th id="serverIP" class="serverIP">IP:</th>
                         <th id="serverOS" class="serverOS">SO:</th>
-                        <th id="serverDate" class="serverDate">Fecha alta</th>
+                        <th id="fechaAlta" class="fechaAlta">Fecha alta</th>
                     </tr>
                 </table>
             </section><br>
@@ -103,14 +103,14 @@
                 <input type="button" class="totalTiempo" value="Calcular Tiempo" onclick="front.calculaTiempo()">
             </form><br>
         </fieldset>
-        <fieldset class="serverAccountsData">
+        <fieldset class="cuentasPorServidor">
             <h3><b>Cuentas por cada servidor</b></h3>
             <label for="server">Seleccione la ordenación por tipo de cuenta:</label>
-            <input type="button" id="sortAccounts" class="sortAccounts" value="Orden descendente" onclick="front.sortAccounts()">
-            <input type="button" id="sortAccounts" class="sortAccounts" value="Orden ascendente" onclick="front.sortAccountsAsc()">
+            <input type="button" id="ordenCuentas" class="ordenCuentas" value="Orden descendente" onclick="front.ordenaDescendente()">
+            <input type="button" id="ordenCuentas" class="ordenCuentas" value="Orden ascendente" onclick="front.ordenaAscendente()">
             <input type="button" id="deleteUser" class="deleteUser" value="Borrar usuario" onclick="front.borraUsuario()">
             <br><br>
-            <table id="accountsTab">
+            <table id="tablaCuentas">
                 <tr>
                     <th>Nombre cuenta</th>
                     <th>Nombre usuario</th>
@@ -120,7 +120,7 @@
                     <th>Tiempo</th>
                     <th>Tipo cuenta</th>
                     <th>Mover al servidor</th>
-                    <th>Selector</th>
+                    <th>Elegir</th>
                 </tr>
             </table>
         </fieldset>
@@ -129,7 +129,7 @@
             <input type="button" id="deleteUserDefinitively" class="deleteUserDefinitively" value="Eliminar completamente" onclick="front.borraCompletamente()">
             <input type="button" id="createAgain" class="createAgain" value="Recuperar usuario" onclick="front.recuperaCuentas()"/>
             <br><br>
-            <table id="deletedAccountsTab">
+            <table id="tablaBorradas">
                 <tr>
                     <th>Nombre cuenta</th>
                     <th>Nombre usuario</th>
@@ -138,8 +138,8 @@
                     <th>Puntos</th>
                     <th>Tiempo</th>
                     <th>Tipo cuenta</th>
-                    <th>Mover al servidor</th>
-                    <th>Selector</th>
+                    <th>Servidor</th>
+                    <th>Elegir</th>
                 </tr>
             </table>
         </fieldset>
@@ -149,4 +149,3 @@
 </body>
 
 </html>
-calculaTiempo

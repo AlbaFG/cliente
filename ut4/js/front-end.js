@@ -1,10 +1,11 @@
 /*global document, creaSistema, window, back */
 /*jslint es6: true */
 /*jslint browser: true */
+//prueba ut4
 var back;
 var front = {};
-front.CORRECT = "Usuario creado creectamente";
-front.CORRECT_OTHER_SERVER = "Se movio correctamente el usuario al servidor:  ";
+front.CORRECT = "Usuario creado correctamente";
+front.MOVIDO_CORRECTAMENTE = "Usuario creado en el servidor:  ";
 front.ERROR_SIN_USUARIO = "No hay usuarios en el sistema";
 var sistema = back.creaSistema();
 function $(id) {
@@ -14,36 +15,16 @@ function $(id) {
 
 front.generateDate = function () {
     "use strict";
-    $("accDate").value = back.getDate();
+    $("fecha").value = back.getDate();
 };
-front.encuentraIndex = function (toDelete, index) {
+front.encuentraIndex = function (borrados, index) {
     "use strict";
-    return back.usuariosBorrados.findIndex((value) => value.nombreCuenta === toDelete[index]);
+    return back.usuariosBorrados.findIndex((value) => value.nombreCuenta === borrados[index]);
 };
 front.encuentraServidor = function (server) {
     "use strict";
     return sistema.sistema.findIndex((value) => value.nombreServidor === server);
 };
-front.recuperaCuentas = function () {
-    "use strict";
-    var id = "delete2";
-    var toDelete = front.compruebaCheck(id);
-    var posicion;
-    var index;
-    var server;
-    var posServer;
-    while (toDelete.length > 0) {
-        index = toDelete.length - 1;
-        posicion = front.encuentraIndex(toDelete, index);
-        server = back.usuariosBorrados[posicion].server;
-        posServer = front.encuentraServidor(server);
-        sistema.sistema[posServer].usuarios.push(back.usuariosBorrados[posicion]);
-        back.usuariosBorrados.splice(posicion, 1);
-        toDelete.pop();
-    }
-    front.fillData();
-};
-
 front.validaUsuario = function () {
     "use strict";
     try {
@@ -51,7 +32,7 @@ front.validaUsuario = function () {
         var nombreUsuario = $("nombreUsuario").value;
         var tipoCuenta = $("tipoCuenta").value;
         var saldo = $("saldo").value;
-        var accDate = $("accDate").value;
+        var fecha = $("fecha").value;
         var puntos = $("puntos").value;
         var tiempo = $("tiempo").value;
         var server = $("selectedServer").value;
@@ -66,29 +47,25 @@ front.validaUsuario = function () {
         } else {
             tiempo = "0:00";
         }
-        back.esFechaCorrecta(accDate);
+        back.esFechaCorrecta(fecha);
         front.creaUsuario(
             nombreUsuario,
             nombreCuenta,
             tipoCuenta,
             saldo,
             puntos,
-            accDate,
+            fecha,
             tiempo,
             server
         );
         if (server === $("filtroServidor").value) {
             front.fillData();
-            $("mssg").innerHTML = front.CORRECT;
+            $("mensaje").innerHTML = front.CORRECT;
         } else {
-            $("mssg").innerHTML = front.CORRECT_OTHER_SERVER + server +
-                    " server";
+            $("mensaje").innerHTML = front.MOVIDO_CORRECTAMENTE + server;
         }
-        window.setTimeout(function fade() {
-            $("mssg").innerHTML = "";
-        }, 10000);
     } catch (e) {
-        $("mssg").innerHTML = e.message;
+        $("mensaje").innerHTML = e.message;
     }
 };
 front.creaUsuario = function (nombreUsuario, nombreCuenta, tipoCuenta, saldo, fecha, puntos, tiempo, server) {
@@ -102,11 +79,11 @@ front.filtraServidor = function () {
     var name = sistema.datosServidor($("filtroServidor").value)[0].nombreServidor;
     var ip = sistema.datosServidor($("filtroServidor").value)[0].ip;
     var os = sistema.datosServidor($("filtroServidor").value)[0].os;
-    var date = sistema.datosServidor($("filtroServidor").value)[0].serverDate;
+    var date = sistema.datosServidor($("filtroServidor").value)[0].fechaAlta;
     $("nombreServidor").innerHTML = "Nombre Servidor: " + name;
     $("serverIP").innerHTML = "IP: " + ip;
     $("serverOS").innerHTML = "OS: " + os;
-    $("serverDate").innerHTML = "Fecha Alta: " + date;
+    $("fechaAlta").innerHTML = "Fecha Alta: " + date;
 };
 front.cuentasCreadas = function (table, value) {
     "use strict";
@@ -126,10 +103,10 @@ front.cuentasCreadas = function (table, value) {
     var sel = document.createElement("select");
     sel.setAttribute("onchange", "front.moverAlServidor()");
     arrayServers.splice(pos, 1);
-    row.setAttribute("id", "rowData1");
+    row.setAttribute("id", "cuentasCreadas");
     row.insertCell(0).innerHTML = value.nombreCuenta;
     row.insertCell(1).innerHTML = value.nombreUsuario;
-    row.insertCell(2).innerHTML = value.accDate;
+    row.insertCell(2).innerHTML = value.fecha;
     row.insertCell(3).innerHTML = value.saldo;
     row.insertCell(4).innerHTML = value.puntos;
     row.insertCell(5).innerHTML = value.tiempo;
@@ -170,28 +147,48 @@ front.moverAlServidor = function () {
 front.cuentasBorradas = function (table, value) {
     "use strict";
     var row = table.insertRow(1);
-    row.setAttribute("id", "rowData2");
+    row.setAttribute("id", "camposBorradas");
     row.insertCell(0).innerHTML = value.nombreCuenta;
     row.insertCell(1).innerHTML = value.nombreUsuario;
-    row.insertCell(2).innerHTML = value.accDate;
+    row.insertCell(2).innerHTML = value.fecha;
     row.insertCell(3).innerHTML = value.saldo;
     row.insertCell(4).innerHTML = value.puntos;
     row.insertCell(5).innerHTML = value.tiempo;
     row.insertCell(6).innerHTML = value.tipoCuenta;
     row.insertCell(7).innerHTML = value.server;
     row.insertCell(8).innerHTML = "<input type='checkbox'" +
-            "id='delete2' class='delete2' value='" +
+            "id='selectorBorradas' class='selectorBorradas' value='" +
             value.nombreCuenta + "'/>";
 };
+front.recuperaCuentas = function () {
+    "use strict";
+    var id = "selectorBorradas";
+    var borrados = front.compruebaCheck(id);
+    var posicion;
+    var index;
+    var server;
+    var posServer;
+    while (borrados.length > 0) {
+        index = borrados.length - 1;
+        posicion = front.encuentraIndex(borrados, index);
+        server = back.usuariosBorrados[posicion].server;
+        posServer = front.encuentraServidor(server);
+        sistema.sistema[posServer].usuarios.push(back.usuariosBorrados[posicion]);
+        back.usuariosBorrados.splice(posicion, 1);
+        borrados.pop();
+    }
+    front.fillData();
+};
+
 front.filtraTablas = function (server) {
     "use strict";
     var filtroUsuarios = [];
-    var toDelete = $("rowData1");
-    var table = $("accountsTab");
-    var filtroServidor = $("accTypeFilter").value;
-    while ($("rowData1")) {
-        toDelete = $("rowData1");
-        toDelete.remove();
+    var borrados = $("cuentasCreadas");
+    var table = $("tablaCuentas");
+    var filtroServidor = $("filtroTipoCuenta").value;
+    while ($("cuentasCreadas")) {
+        borrados = $("cuentasCreadas");
+        borrados.remove();
     }
     if (filtroServidor === "all") {
         server.usuarios.map(function (value) {
@@ -208,11 +205,11 @@ front.filtraTablas = function (server) {
 };
 front.filtraBorradas = function () {
     "use strict";
-    var toDelete = $("rowData2");
-    var table = $("deletedAccountsTab");
-    while ($("rowData2")) {
-        toDelete = $("rowData2");
-        toDelete.remove();
+    var borrados = $("camposBorradas");
+    var table = $("tablaBorradas");
+    while ($("camposBorradas")) {
+        borrados = $("camposBorradas");
+        borrados.remove();
     }
     back.usuariosBorrados.map(function (value) {
         front.cuentasBorradas(table, value);
@@ -228,15 +225,15 @@ front.fillData = function () {
 front.usuariosAborrar = function (id) {
     "use strict";
     var index = 0;
-    var toDelete = front.compruebaCheck(id);
+    var borrados = front.compruebaCheck(id);
     var server;
     var name;
-    while (toDelete.length > 0) {
+    while (borrados.length > 0) {
         server = sistema.datosServidor($("filtroServidor").value)[0];
-        index = toDelete.length - 1;
-        name = toDelete[index];
+        index = borrados.length - 1;
+        name = borrados[index];
         sistema.borraUsuario(name, server);
-        toDelete.pop();
+        borrados.pop();
     }
     front.fillData();
 };
@@ -249,28 +246,28 @@ front.compruebaCheck = function (id) {
     "use strict";
     var list = document.getElementsByClassName(id);
     var index = 0;
-    var toDelete = [];
+    var borrados = [];
     while (list[index]) {
         if (list[index].checked === true) {
-            toDelete.push(list[index].value);
+            borrados.push(list[index].value);
             index += 1;
         } else {
             index += 1;
         }
     }
-    return toDelete;
+    return borrados;
 };
 front.borraCompletamente = function () {
     "use strict";
-    var id = "delete2";
+    var id = "selectorBorradas";
     var index = 0;
-    var toDelete = front.compruebaCheck(id);
+    var borrados = front.compruebaCheck(id);
     var pos;
-    while (toDelete.length > 0) {
-        pos = front.encuentraIndex(toDelete, index);
-        index = toDelete.length - 1;
+    while (borrados.length > 0) {
+        pos = front.encuentraIndex(borrados, index);
+        index = borrados.length - 1;
         back.usuariosBorrados.splice(pos, 1);
-        toDelete.pop();
+        borrados.pop();
     }
     front.fillData();
 };
@@ -284,17 +281,6 @@ front.generaSaldo = function () {
         $("mediaSado").value = Math.round(saldo / usuarios);
     }
 };
-front.comparaCuentas = function (a, b) {
-    "use strict";
-    if (a.tipoCuenta < b.tipoCuenta) {
-        return -1;
-    }
-    if (a.tipoCuenta > b.tipoCuenta) {
-        returfiltroUsuarios
-    }
-    return 0;
-};
-
 front.estadisticas = function () {
     "use strict";
     var sections = sistema.separaSecciones();
@@ -302,7 +288,7 @@ front.estadisticas = function () {
     document.getElementById("tramo2").innerHTML = sections[1];
     document.getElementById("tramo3").innerHTML = sections[2];
 };
-front.compareAccounts = function (a, b) {
+front.comparaCuentasDesc = function (a, b) {
     "use strict";
     if (a.tipoCuenta < b.tipoCuenta) {
         return -1;
@@ -312,7 +298,7 @@ front.compareAccounts = function (a, b) {
     }
     return 0;
 };
-front.compareAccountsAsc = function (a, b) {
+front.comparaCuentasAscendente = function (a, b) {
     "use strict";
     if (a.tipoCuenta < b.tipoCuenta) {
         return 1;
@@ -322,16 +308,16 @@ front.compareAccountsAsc = function (a, b) {
     }
     return 0;
 };
-front.sortAccounts = function () {
+front.ordenaDescendente = function () {
     "use strict";
     var server = sistema.datosServidor($("filtroServidor").value)[0];
-    server.usuarios.sort(front.compareAccounts);
+    server.usuarios.sort(front.comparaCuentasDesc);
     front.filtraTablas(server);
 };
-front.sortAccountsAsc = function () {
+front.ordenaAscendente = function () {
     "use strict";
     var server = sistema.datosServidor($("filtroServidor").value)[0];
-    server.usuarios.sort(front.compareAccountsAsc);
+    server.usuarios.sort(front.comparaCuentasAscendente);
     front.filtraTablas(server);
 };
 front.calculaTiempo = function () {
@@ -341,6 +327,6 @@ front.calculaTiempo = function () {
     if (usuarios === 0) {
         $("tiempoTotal").value = front.ERROR_SIN_USUARIO;
     } else {
-        $("tiempoTotal").value = sistema.getTotalTime("tiempo", server);
+        $("tiempoTotal").value = sistema.tiempoTotal(server);
     }
 };

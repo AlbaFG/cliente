@@ -6,32 +6,32 @@ back.ERROR_CUENTA = "Nombre cuenta invalido";
 back.ERROR_USUARIO = "Nombre usuario invalido";
 back.ERROR_SALDO = "Saldo invalido";
 back.DATE_ERROR = "Fecha invalida";
-back.REPEATED_NAME = "La cuenta ya existe";
+back.CUENTA_REPETIDA = "La cuenta ya existe";
 back.ERROR_PUNTOS = "Puntos invalidos";
 back.ERROR_TIEMPO = "Tiempo invalido";
 back.Sistema = function () {
     "use strict";
-    this.sistema = [back.amnexis, back.asterix, back.asuracenturix, back.obelix,
-            back.panoramix, back.abraracurcix, back.canarix];
+    this.sistema = [back.abraracurcix, back.amnexis, back.asterix, back.asuracenturix,
+        back.canarix, back.obelix, back.panoramix];
 };
-back.Usuario = function (nombreUsuario, nombreCuenta, tipoCuenta, saldo, puntos, accDate, tiempo,
+back.Usuario = function (nombreCuenta, nombreUsuario, tipoCuenta, saldo, fecha,puntos,  tiempo,
         server) {
     "use strict";
-    this.nombreUsuario = nombreUsuario;
     this.nombreCuenta = nombreCuenta;
+    this.nombreUsuario = nombreUsuario;
     this.tipoCuenta = tipoCuenta;
     this.saldo = saldo;
+    this.fecha = fecha;
     this.puntos = puntos;
-    this.accDate = accDate;
     this.tiempo = tiempo;
     this.server = server;
 };
-back.Server = function (nombreServidor, ip, os, serverDate) {
+back.Server = function (nombreServidor, ip, os, fechaAlta) {
     "use strict";
     this.nombreServidor = nombreServidor;
     this.ip = ip;
     this.os = os;
-    this.serverDate = serverDate;
+    this.fechaAlta = fechaAlta;
     this.usuarios = [];
 };
 back.Server.prototype.aniadirUsuarioServidor = function (targetServer, user) {
@@ -55,6 +55,7 @@ back.Sistema.prototype.datosServidor = function (server) {
         return value.nombreServidor === server;
     });
 };
+//Prototype Server?
 back.filtraTipoCuenta = function (type) {
     "use strict";
     return this.usuarios.filter(function (value) {
@@ -126,8 +127,10 @@ back.Sistema.prototype.puntosTotales = function () {
     var todosPuntos;
     var arrayPtos = [];
     todosPuntos = this.secciones();
-    for (var x = 0; x < todosPuntos.length; x += 1) {
-        for (var y = 0; y < todosPuntos[x].length; y += 1) {
+    var x;
+    var y;
+    for (x = 0; x < todosPuntos.length; x += 1) {
+        for (y = 0; y < todosPuntos[x].length; y += 1) {
             if (todosPuntos[x][y] !== undefined) {
                 arrayPtos.push(todosPuntos[x][y]);
             } else {
@@ -190,15 +193,15 @@ back.puntosCorrectos = function (puntos, tipoCuenta) {
     }
     return puntos;
 };
-back.esFechaCorrecta = function (accDate) {
+back.esFechaCorrecta = function (fecha) {
     "use strict";
     var isRight = true;
-    var usaFormatDate = accDate.substr(3, 2) + "/" + accDate.substr(0, 2) + "/" +
-            accDate.substr(6, 2);
+    var usaFormatDate = fecha.substr(3, 2) + "/" + fecha.substr(0, 2) + "/" +
+            fecha.substr(6, 2);
     var lengthDate = usaFormatDate.split("/").join("");
     var currentYear = new Date();
     var day = new Date(usaFormatDate);
-    var year = parseInt(accDate.substr(6, 2), 10);
+    var year = parseInt(fecha.substr(6, 2), 10);
     currentYear = parseInt(currentYear.getYear().toString().substr(1, 2), 10) + 2000;
     if (year < 0 || year > 16) {
         year = 1900 + year;
@@ -207,7 +210,7 @@ back.esFechaCorrecta = function (accDate) {
     }
     day = day.getDate();
     if (new Date(usaFormatDate).toString() === "Invalid Date" ||
-            day !== parseInt(accDate.substr(0, 2), 10) || lengthDate.length !== 6) {
+            day !== parseInt(fecha.substr(0, 2), 10) || lengthDate.length !== 6) {
         throw new Error(back.DATE_ERROR);
     }
     return isRight;
@@ -224,24 +227,20 @@ back.tiempoVacio = function (tiempo) {
     var minutos;
     var segundos;
     var total;
-    try {
-        minutos = (tiempo.split(":"))[0];
-        segundos = (tiempo.split(":"))[1];
-        total = minutos + segundos;
-        if (!tiempo || isNaN(total) || segundos.length !== 2) {
-            throw new Error(back.ERROR_TIEMPO);
-        }
-        return tiempo;
-    } catch (e) {
+    minutos = (tiempo.split(":"))[0];
+    segundos = (tiempo.split(":"))[1];
+    total = minutos + segundos;
+    if (!tiempo || Number.isNaN(total) || segundos.length !== 2) {
         throw new Error(back.ERROR_TIEMPO);
     }
+    return tiempo;
 };
 back.Sistema.prototype.nombreUnico = function (name) {
     "use strict";
     return this.sistema.some(function (value) {
         return value.usuarios.some(function (valor) {
             if (valor.nombreCuenta === name) {
-                throw new Error(back.REPEATED_NAME);
+                throw new Error(back.CUENTA_REPETIDA);
             }
         });
     });
@@ -252,13 +251,13 @@ back.incluyeUsuariosBorrados = function (user) {
 };
 back.Sistema.prototype.borraUsuario = function (name, server) {
     "use strict";
-    var deleted = [];
+    var borrado = [];
     var arr = server.usuarios.map(function (value) {
         return value.nombreCuenta;
     });
     var pos = arr.indexOf(name);
-    deleted = server.usuarios.splice(pos, 1);
-    deleted.forEach(back.incluyeUsuariosBorrados);
+    borrado = server.usuarios.splice(pos, 1);
+    borrado.forEach(back.incluyeUsuariosBorrados);
 };
 back.add = function (a, b) {
     "use strict";
@@ -295,16 +294,7 @@ back.Sistema.prototype.totalUsuarios = function () {
     });
     return totalUsuarios.reduce(back.add);
 };
-
-back.Sistema.prototype.getTotalTime = function (tiempo, server) {
-    "use strict";
-    var minutes = back.Sistema.prototype.getTotalMinutes(tiempo, server);
-    var seconds = back.Sistema.prototype.getTotalSeconds(tiempo, server);
-    minutes = minutes + Math.floor(seconds / 60);
-    seconds = seconds % 60;
-    return `${minutes}:${seconds}`;
-};
-back.Sistema.prototype.getTotalMinutes = function (tiempo, server) {
+back.Sistema.prototype.minutosTotal = function (server) {
     "use strict";
     var totalMinutes = server.usuarios.map(function (value) {
             var minutes = parseInt((value.tiempo.split(":"))[0]);
@@ -312,11 +302,19 @@ back.Sistema.prototype.getTotalMinutes = function (tiempo, server) {
     });
     return totalMinutes.reduce(back.add);
 };
-back.Sistema.prototype.getTotalSeconds = function (tiempo, server) {
+back.Sistema.prototype.segundosTotal = function (server) {
     "use strict";
     var totalSeconds = server.usuarios.map(function (value) {
             var seconds = parseInt((value.tiempo.split(":"))[1]);
             return (!Number.isNaN(seconds)) ? parseInt(seconds) : 0;
     });
     return totalSeconds.reduce(back.add);
+};
+back.Sistema.prototype.tiempoTotal = function (server) {
+    "use strict";
+    var minutes = back.Sistema.prototype.minutosTotal(server);
+    var seconds = back.Sistema.prototype.segundosTotal(server);
+    minutes = minutes + Math.floor(seconds / 60);
+    seconds = seconds % 60;
+    return `${minutes}:${seconds}`;
 };
