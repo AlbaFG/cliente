@@ -7,6 +7,13 @@ var front = {};
 front.CORRECT = "Usuario creado correctamente";
 front.MOVIDO_CORRECTAMENTE = "Usuario creado en el servidor:  ";
 front.ERROR_SIN_USUARIO = "No hay usuarios en el sistema";
+front.ERROR_CUENTA = "Nombre cuenta invalido";
+front.ERROR_USUARIO = "Nombre usuario invalido";
+front.ERROR_SALDO = "Saldo invalido";
+front.ERROR_FECHA = "Fecha invalida";
+front.ERROR_REPETIDA = "La cuenta ya existe";
+front.ERROR_PUNTOS = "Puntos invalidos";
+front.ERROR_TIEMPO = "Tiempo invalido";
 var sistema = back.creaSistema();
 function $(id) {
     "use strict";
@@ -263,12 +270,12 @@ front.borraCompletamente = function () {
     var index = 0;
     var borrados = front.compruebaCheck(id);
     var pos;
-    while (borrados.length > 0) {
-        pos = front.encuentraIndex(borrados, index);
+    borrados.forEach(function (e, index, borrados){
+        pos = front.encuentraIndex(borrados,index);
         index = borrados.length - 1;
         back.usuariosBorrados.splice(pos, 1);
         borrados.pop();
-    }
+    })
     front.fillData();
 };
 front.generaSaldo = function () {
@@ -293,7 +300,7 @@ front.comparaCuentasDesc = function (a, b) {
     if (a.tipoCuenta < b.tipoCuenta) {
         return -1;
     }
-    if (a.tipoCuenta > b.tipoCuenta) {
+    else {
         return 1;
     }
     return 0;
@@ -303,7 +310,7 @@ front.comparaCuentasAscendente = function (a, b) {
     if (a.tipoCuenta < b.tipoCuenta) {
         return 1;
     }
-    if (a.tipoCuenta > b.tipoCuenta) {
+    else {
         return -1;
     }
     return 0;

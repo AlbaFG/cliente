@@ -2,13 +2,6 @@
 /*jslint this: true */
 var back = {};
 back.usuariosBorrados = [];
-back.ERROR_CUENTA = "Nombre cuenta invalido";
-back.ERROR_USUARIO = "Nombre usuario invalido";
-back.ERROR_SALDO = "Saldo invalido";
-back.DATE_ERROR = "Fecha invalida";
-back.CUENTA_REPETIDA = "La cuenta ya existe";
-back.ERROR_PUNTOS = "Puntos invalidos";
-back.ERROR_TIEMPO = "Tiempo invalido";
 back.Sistema = function () {
     "use strict";
     this.sistema = [back.abraracurcix, back.amnexis, back.asterix, back.asuracenturix,
@@ -75,27 +68,23 @@ back.nombreCuentaCorrecto = function (nombreCuenta) {
     var regExp = new RegExp("^[a-z\\.\\_\\-]+$");
     nombreCuenta = nombreCuenta.trim();
     if (!regExp.test(nombreCuenta)) {
-        throw new Error(back.ERROR_CUENTA);
+        throw new Error(front.ERROR_CUENTA);
     }
 };
-back.nombreUsuarioCorrecto = function (name) {
+back.nombreUsuarioCorrecto = function (nombre) {
     "use strict";
-    name = name.trim();
-    if (name.split(" ").length !== 2) {
-        throw new Error(back.ERROR_USUARIO);
+    nombre = nombre.trim();
+    if (nombre.split(" ").length !== 2) {
+        throw new Error(front.ERROR_USUARIO);
+    } else {
+
     }
 };
 back.saldoCorrecto = function (saldo) {
     "use strict";
     var index = 0;
-    if (saldo !== "") {
-        while (saldo[index]) {
-            if (Number.isNaN(parseInt(saldo[index]))) {
-                index = undefined;
-                throw new Error(back.ERROR_SALDO);
-            }
-            index += 1;
-        }
+    if (!Number.isNaN(saldo)  && saldo) {
+        throw new Error(front.ERROR_SALDO);
     } else {
         saldo = saldo;
     }
@@ -112,6 +101,9 @@ back.Sistema.prototype.secciones = function () {
     "use strict";
     var x = 0;
     var serverPtos;
+
+    
+
     while (this.puntosServidor()[x]) {
         if (this.puntosServidor()[x].length !== 0) {
             serverPtos = this.puntosServidor(this.puntosServidor()[x]);
@@ -172,10 +164,11 @@ back.puntosCorrectos = function (puntos, tipoCuenta) {
     "use strict";
     var index = 0;
     if (puntos !== "") {
+
         while (puntos[index]) {
             if (Number.isNaN(parseInt(puntos[index]))) {
                 index = undefined;
-                throw new Error(back.ERROR_PUNTOS);
+                throw new Error(front.ERROR_PUNTOS);
             }
             index += 1;
         }
@@ -211,7 +204,7 @@ back.esFechaCorrecta = function (fecha) {
     day = day.getDate();
     if (new Date(usaFormatDate).toString() === "Invalid Date" ||
             day !== parseInt(fecha.substr(0, 2), 10) || lengthDate.length !== 6) {
-        throw new Error(back.DATE_ERROR);
+        throw new Error(front.ERROR_FECHA);
     }
     return isRight;
 };
@@ -231,7 +224,7 @@ back.tiempoVacio = function (tiempo) {
     segundos = (tiempo.split(":"))[1];
     total = minutos + segundos;
     if (!tiempo || Number.isNaN(total) || segundos.length !== 2) {
-        throw new Error(back.ERROR_TIEMPO);
+        throw new Error(front.ERROR_TIEMPO);
     }
     return tiempo;
 };
@@ -240,7 +233,7 @@ back.Sistema.prototype.nombreUnico = function (name) {
     return this.sistema.some(function (value) {
         return value.usuarios.some(function (valor) {
             if (valor.nombreCuenta === name) {
-                throw new Error(back.CUENTA_REPETIDA);
+                throw new Error(front.ERROR_REPETIDA);
             }
         });
     });
