@@ -14,12 +14,12 @@
     <h1>Gestion de Usuarios</h1>
     <section class="web">
         <fieldset class="userdataField">
-            <legend><b>Crear usuario</b></legend>
+            <h3><b>Crear usuario</b></h3>
             <form id="form" class="myForm" method="post">
                 <label for="">Nombre Cuenta</label>
                 <input type="text" name="nombreCuenta" id="nombreCuenta" required/><br>
                 <label for="">Nombre Usuario</label>
-                <input type="text" name="userName" id="userName" required/><br>
+                <input type="text" name="nombreUsuario" id="nombreUsuario" required/><br>
                 <label for="">Fecha</label>
                 <input type="text" name="accDate" id="accDate" required/><br>
                 <label for="">Saldo</label>
@@ -53,7 +53,7 @@
             </form><br>
         </fieldset>
         <fieldset class="serverDataFilter">
-            <legend><b>Filtro Servidor</b></legend>
+            <h3><b>Filtro Servidor</b></h3>
             <form>
                 <select id="filtroServidor" class="filtroServidor" onchange="front.fillData()">
                     <option value="Abraracurcix">Abraracurcix</option>
@@ -85,7 +85,7 @@
                 </table>
             </section><br>
             <fieldset id="muestraTramos">
-                <legend>Tramos</legend>
+                <h3>Tramos</h3>
                 <form name="tramos" id="tramos">
                     <label>Tramo 1:</label><p id="tramo1"></p>
                     <label>Tramo 2:</label><p id="tramo2"></p>
@@ -100,11 +100,11 @@
                 <input type="button" class="calculateMedia" value="Calcular" onclick="front.generaSaldo()">
                 <label for="">Tiempo total</label>
                 <input type="text" id="tiempoTotal" class="tiempo" disabled>
-                <input type="button" class="totalTiempo" value="Calcular Tiempo" onclick="front.calculateSystemTime()">
+                <input type="button" class="totalTiempo" value="Calcular Tiempo" onclick="front.calculaTiempo()">
             </form><br>
         </fieldset>
         <fieldset class="serverAccountsData">
-            <legend><b>Cuentas por cada servidor</b></legend>
+            <h3><b>Cuentas por cada servidor</b></h3>
             <label for="server">Seleccione la ordenación por tipo de cuenta:</label>
             <input type="button" id="sortAccounts" class="sortAccounts" value="Orden descendente" onclick="front.sortAccounts()">
             <input type="button" id="sortAccounts" class="sortAccounts" value="Orden ascendente" onclick="front.sortAccountsAsc()">
@@ -149,3 +149,4 @@
 </body>
 
 </html>
+calculaTiempo

@@ -1,4 +1,4 @@
-/*global document, createSystem, window, back */
+/*global document, creaSistema, window, back */
 /*jslint es6: true */
 /*jslint browser: true */
 var back;
@@ -6,49 +6,39 @@ var front = {};
 front.CORRECT = "Usuario creado creectamente";
 front.CORRECT_OTHER_SERVER = "Se movio correctamente el usuario al servidor:  ";
 front.ERROR_SIN_USUARIO = "No hay usuarios en el sistema";
-var system = back.createSystem();
+var sistema = back.creaSistema();
 function $(id) {
     "use strict";
     return document.getElementById(id);
 }
-front.setStyles = function (checked) {
-    "use strict";
-    var browser = navigator.userAgent;
-    if (browser.includes("Firefox")) {
-        checked.style.marginLeft = "22em";
-        checked.style.marginTop = "-0.75em";
-    } else {
-        checked.style.marginLeft = "28em";
-        checked.style.marginTop = "-0.5em";
-    }
-};
+
 front.generateDate = function () {
     "use strict";
     $("accDate").value = back.getDate();
 };
 front.encuentraIndex = function (toDelete, index) {
     "use strict";
-    return back.deletedUsers.findIndex((value) => value.nombreCuenta === toDelete[index]);
+    return back.usuariosBorrados.findIndex((value) => value.nombreCuenta === toDelete[index]);
 };
 front.encuentraServidor = function (server) {
     "use strict";
-    return system.system.findIndex((value) => value.nombreServidor === server);
+    return sistema.sistema.findIndex((value) => value.nombreServidor === server);
 };
 front.recuperaCuentas = function () {
     "use strict";
     var id = "delete2";
     var toDelete = front.compruebaCheck(id);
-    var posUser;
+    var posicion;
     var index;
     var server;
     var posServer;
     while (toDelete.length > 0) {
         index = toDelete.length - 1;
-        posUser = front.encuentraIndex(toDelete, index);
-        server = back.deletedUsers[posUser].server;
+        posicion = front.encuentraIndex(toDelete, index);
+        server = back.usuariosBorrados[posicion].server;
         posServer = front.encuentraServidor(server);
-        system.system[posServer].users.push(back.deletedUsers[posUser]);
-        back.deletedUsers.splice(posUser, 1);
+        sistema.sistema[posServer].usuarios.push(back.usuariosBorrados[posicion]);
+        back.usuariosBorrados.splice(posicion, 1);
         toDelete.pop();
     }
     front.fillData();
@@ -58,7 +48,7 @@ front.validaUsuario = function () {
     "use strict";
     try {
         var nombreCuenta = $("nombreCuenta").value;
-        var userName = $("userName").value;
+        var nombreUsuario = $("nombreUsuario").value;
         var tipoCuenta = $("tipoCuenta").value;
         var saldo = $("saldo").value;
         var accDate = $("accDate").value;
@@ -67,18 +57,18 @@ front.validaUsuario = function () {
         var server = $("selectedServer").value;
 
         back.nombreCuentaCorrecto(nombreCuenta);
-        system.nombreUnico(nombreCuenta);
-        back.nombreUsuarioCorrecto(userName);
+        sistema.nombreUnico(nombreCuenta);
+        back.nombreUsuarioCorrecto(nombreUsuario);
         back.saldoCorrecto(saldo);
         puntos = back.puntosCorrectos(puntos, tipoCuenta);
         if (tiempo) {
-            tiempo = (back.setConexionTime(back.isValidTime(tiempo)));
+            tiempo = (back.tiempoVacio(back.tiempoCorrecto(tiempo)));
         } else {
             tiempo = "0:00";
         }
         back.esFechaCorrecta(accDate);
         front.creaUsuario(
-            userName,
+            nombreUsuario,
             nombreCuenta,
             tipoCuenta,
             saldo,
@@ -103,16 +93,16 @@ front.validaUsuario = function () {
 };
 front.creaUsuario = function (nombreUsuario, nombreCuenta, tipoCuenta, saldo, fecha, puntos, tiempo, server) {
     "use strict";
-    var targetServer = system.datosServidor($("selectedServer").value)[0];
-    var user = new back.User(nombreUsuario, nombreCuenta, tipoCuenta, saldo, puntos, fecha, tiempo, server);
-    back.Server.prototype.addUserToServer(targetServer, user);
+    var targetServer = sistema.datosServidor($("selectedServer").value)[0];
+    var user = new back.Usuario(nombreUsuario, nombreCuenta, tipoCuenta, saldo, puntos, fecha, tiempo, server);
+    back.Server.prototype.aniadirUsuarioServidor(targetServer, user);
 };
 front.filtraServidor = function () {
     "use strict";
-    var name = system.datosServidor($("filtroServidor").value)[0].nombreServidor;
-    var ip = system.datosServidor($("filtroServidor").value)[0].ip;
-    var os = system.datosServidor($("filtroServidor").value)[0].os;
-    var date = system.datosServidor($("filtroServidor").value)[0].serverDate;
+    var name = sistema.datosServidor($("filtroServidor").value)[0].nombreServidor;
+    var ip = sistema.datosServidor($("filtroServidor").value)[0].ip;
+    var os = sistema.datosServidor($("filtroServidor").value)[0].os;
+    var date = sistema.datosServidor($("filtroServidor").value)[0].serverDate;
     $("nombreServidor").innerHTML = "Nombre Servidor: " + name;
     $("serverIP").innerHTML = "IP: " + ip;
     $("serverOS").innerHTML = "OS: " + os;
@@ -138,7 +128,7 @@ front.cuentasCreadas = function (table, value) {
     arrayServers.splice(pos, 1);
     row.setAttribute("id", "rowData1");
     row.insertCell(0).innerHTML = value.nombreCuenta;
-    row.insertCell(1).innerHTML = value.userName;
+    row.insertCell(1).innerHTML = value.nombreUsuario;
     row.insertCell(2).innerHTML = value.accDate;
     row.insertCell(3).innerHTML = value.saldo;
     row.insertCell(4).innerHTML = value.puntos;
@@ -154,7 +144,6 @@ front.cuentasCreadas = function (table, value) {
     row.insertCell(8).innerHTML = "<input type='checkbox'" +
             "id='delete1' class='delete1' value='" +
             value.nombreCuenta + "'/>";
-    front.setStyles($("delete1"));
 };
 front.moverAlServidor = function () {
     "use strict";
@@ -164,18 +153,18 @@ front.moverAlServidor = function () {
     var targetServer = document.activeElement.value;
     var posActualServer = front.encuentraServidor(actualServer);
     var posTargetServer = front.encuentraServidor(targetServer);
-    var arrayUser = system.system[posActualServer].users.filter(function (value) {
+    var arrayUser = sistema.sistema[posActualServer].usuarios.filter(function (value) {
         return value.nombreCuenta === nombreCuenta;
     });
     var user = arrayUser[0];
     user.server = targetServer;
-    system.system[posTargetServer].users.push(user);
-    actualServer = system.system[posActualServer];
-    var arr = actualServer.users.map(function (value) {
+    sistema.sistema[posTargetServer].usuarios.push(user);
+    actualServer = sistema.sistema[posActualServer];
+    var arr = actualServer.usuarios.map(function (value) {
         return value.nombreCuenta;
     });
     var pos = arr.indexOf(nombreCuenta);
-    actualServer.users.splice(pos, 1);
+    actualServer.usuarios.splice(pos, 1);
     front.fillData();
 };
 front.cuentasBorradas = function (table, value) {
@@ -183,7 +172,7 @@ front.cuentasBorradas = function (table, value) {
     var row = table.insertRow(1);
     row.setAttribute("id", "rowData2");
     row.insertCell(0).innerHTML = value.nombreCuenta;
-    row.insertCell(1).innerHTML = value.userName;
+    row.insertCell(1).innerHTML = value.nombreUsuario;
     row.insertCell(2).innerHTML = value.accDate;
     row.insertCell(3).innerHTML = value.saldo;
     row.insertCell(4).innerHTML = value.puntos;
@@ -193,11 +182,10 @@ front.cuentasBorradas = function (table, value) {
     row.insertCell(8).innerHTML = "<input type='checkbox'" +
             "id='delete2' class='delete2' value='" +
             value.nombreCuenta + "'/>";
-    front.setStyles($("delete2"));
 };
 front.filtraTablas = function (server) {
     "use strict";
-    var filterUsers = [];
+    var filtroUsuarios = [];
     var toDelete = $("rowData1");
     var table = $("accountsTab");
     var filtroServidor = $("accTypeFilter").value;
@@ -206,14 +194,14 @@ front.filtraTablas = function (server) {
         toDelete.remove();
     }
     if (filtroServidor === "all") {
-        server.users.map(function (value) {
+        server.usuarios.map(function (value) {
             front.cuentasCreadas(table, value);
         });
     } else {
-        filterUsers = server.users.filter(function (value) {
+        filtroUsuarios = server.usuarios.filter(function (value) {
             return value.tipoCuenta === filtroServidor;
         });
-        filterUsers.map(function (value) {
+        filtroUsuarios.map(function (value) {
             front.cuentasCreadas(table, value);
         });
     }
@@ -226,13 +214,13 @@ front.filtraBorradas = function () {
         toDelete = $("rowData2");
         toDelete.remove();
     }
-    back.deletedUsers.map(function (value) {
+    back.usuariosBorrados.map(function (value) {
         front.cuentasBorradas(table, value);
     });
 };
 front.fillData = function () {
     "use strict";
-    var server = system.datosServidor($("filtroServidor").value)[0];
+    var server = sistema.datosServidor($("filtroServidor").value)[0];
     front.filtraServidor();
     front.filtraTablas(server);
     front.filtraBorradas();
@@ -244,10 +232,10 @@ front.usuariosAborrar = function (id) {
     var server;
     var name;
     while (toDelete.length > 0) {
-        server = system.datosServidor($("filtroServidor").value)[0];
+        server = sistema.datosServidor($("filtroServidor").value)[0];
         index = toDelete.length - 1;
         name = toDelete[index];
-        system.borraUsuario(name, server);
+        sistema.borraUsuario(name, server);
         toDelete.pop();
     }
     front.fillData();
@@ -281,19 +269,19 @@ front.borraCompletamente = function () {
     while (toDelete.length > 0) {
         pos = front.encuentraIndex(toDelete, index);
         index = toDelete.length - 1;
-        back.deletedUsers.splice(pos, 1);
+        back.usuariosBorrados.splice(pos, 1);
         toDelete.pop();
     }
     front.fillData();
 };
 front.generaSaldo = function () {
     "use strict";
-    var saldo = system.totalSaldo();
-    var users = system.totalUsuarios();
-    if (users === 0) {
+    var saldo = sistema.totalSaldo();
+    var usuarios = sistema.totalUsuarios();
+    if (usuarios === 0) {
         $("mediaSado").value = front.ERROR_SIN_USUARIO;
     } else {
-        $("mediaSado").value = Math.round(saldo / users);
+        $("mediaSado").value = Math.round(saldo / usuarios);
     }
 };
 front.comparaCuentas = function (a, b) {
@@ -302,14 +290,14 @@ front.comparaCuentas = function (a, b) {
         return -1;
     }
     if (a.tipoCuenta > b.tipoCuenta) {
-        return 1;
+        returfiltroUsuarios
     }
     return 0;
 };
 
 front.estadisticas = function () {
     "use strict";
-    var sections = system.separaSecciones();
+    var sections = sistema.separaSecciones();
     document.getElementById("tramo1").innerHTML = sections[0];
     document.getElementById("tramo2").innerHTML = sections[1];
     document.getElementById("tramo3").innerHTML = sections[2];
@@ -336,23 +324,23 @@ front.compareAccountsAsc = function (a, b) {
 };
 front.sortAccounts = function () {
     "use strict";
-    var server = system.datosServidor($("filtroServidor").value)[0];
-    server.users.sort(front.compareAccounts);
+    var server = sistema.datosServidor($("filtroServidor").value)[0];
+    server.usuarios.sort(front.compareAccounts);
     front.filtraTablas(server);
 };
 front.sortAccountsAsc = function () {
     "use strict";
-    var server = system.datosServidor($("filtroServidor").value)[0];
-    server.users.sort(front.compareAccountsAsc);
+    var server = sistema.datosServidor($("filtroServidor").value)[0];
+    server.usuarios.sort(front.compareAccountsAsc);
     front.filtraTablas(server);
 };
-front.calculateSystemTime = function () {
+front.calculaTiempo = function () {
     "use strict";
-    var users = system.totalUsuarios();
-    var server = system.datosServidor($("filtroServidor").value)[0];
-    if (users === 0) {
+    var usuarios = sistema.totalUsuarios();
+    var server = sistema.datosServidor($("filtroServidor").value)[0];
+    if (usuarios === 0) {
         $("tiempoTotal").value = front.ERROR_SIN_USUARIO;
     } else {
-        $("tiempoTotal").value = system.getTotalTime("tiempo", server);
+        $("tiempoTotal").value = sistema.getTotalTime("tiempo", server);
     }
 };

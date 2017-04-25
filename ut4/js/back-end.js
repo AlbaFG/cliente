@@ -1,23 +1,23 @@
 /*jslint es6: true */
 /*jslint this: true */
 var back = {};
-back.deletedUsers = [];
-back.ACC_NAME_ERROR = "Nombre cuenta invalido";
-back.USERNAME_ERROR = "Nombre usuario invalido";
+back.usuariosBorrados = [];
+back.ERROR_CUENTA = "Nombre cuenta invalido";
+back.ERROR_USUARIO = "Nombre usuario invalido";
 back.ERROR_SALDO = "Saldo invalido";
 back.DATE_ERROR = "Fecha invalida";
 back.REPEATED_NAME = "La cuenta ya existe";
-back.USER_POINTS_ERROR = "Puntos invalidos";
+back.ERROR_PUNTOS = "Puntos invalidos";
 back.ERROR_TIEMPO = "Tiempo invalido";
-back.System = function () {
+back.Sistema = function () {
     "use strict";
-    this.system = [back.amnexis, back.asterix, back.asuracenturix, back.obelix,
+    this.sistema = [back.amnexis, back.asterix, back.asuracenturix, back.obelix,
             back.panoramix, back.abraracurcix, back.canarix];
 };
-back.User = function (userName, nombreCuenta, tipoCuenta, saldo, puntos, accDate, tiempo,
+back.Usuario = function (nombreUsuario, nombreCuenta, tipoCuenta, saldo, puntos, accDate, tiempo,
         server) {
     "use strict";
-    this.userName = userName;
+    this.nombreUsuario = nombreUsuario;
     this.nombreCuenta = nombreCuenta;
     this.tipoCuenta = tipoCuenta;
     this.saldo = saldo;
@@ -32,15 +32,15 @@ back.Server = function (nombreServidor, ip, os, serverDate) {
     this.ip = ip;
     this.os = os;
     this.serverDate = serverDate;
-    this.users = [];
+    this.usuarios = [];
 };
-back.Server.prototype.addUserToServer = function (targetServer, user) {
+back.Server.prototype.aniadirUsuarioServidor = function (targetServer, user) {
     "use strict";
-    targetServer.users.push(user);
+    targetServer.usuarios.push(user);
 };
-back.createSystem = function () {
+back.creaSistema = function () {
     "use strict";
-    return new back.System();
+    return new back.Sistema();
 };
 back.amnexis = new back.Server("Amnexis", "192.16.0.1", "Linux", "01/01/1990");
 back.asterix = new back.Server("Asterix", "192.16.4.1", "Linux", "01/01/1990");
@@ -49,15 +49,15 @@ back.obelix = new back.Server("Obelix", "172.21.1.1", "Windows Server", "01/01/1
 back.panoramix = new back.Server("Panoramix", "172.25.1.1", "Windows Server", "01/01/1990");
 back.abraracurcix = new back.Server("Abraracurcix", "1.2.3.4", "NetBSD", "01/01/1990");
 back.canarix = new back.Server("Canarix", "2.4.6.8", "OpenBSD", "08/03/2017");
-back.System.prototype.datosServidor = function (server) {
+back.Sistema.prototype.datosServidor = function (server) {
     "use strict";
-    return this.system.filter(function (value) {
+    return this.sistema.filter(function (value) {
         return value.nombreServidor === server;
     });
 };
 back.filtraTipoCuenta = function (type) {
     "use strict";
-    return this.users.filter(function (value) {
+    return this.usuarios.filter(function (value) {
         return value.tipoCuenta === type;
     });
 };
@@ -74,14 +74,14 @@ back.nombreCuentaCorrecto = function (nombreCuenta) {
     var regExp = new RegExp("^[a-z\\.\\_\\-]+$");
     nombreCuenta = nombreCuenta.trim();
     if (!regExp.test(nombreCuenta)) {
-        throw new Error(back.ACC_NAME_ERROR);
+        throw new Error(back.ERROR_CUENTA);
     }
 };
 back.nombreUsuarioCorrecto = function (name) {
     "use strict";
     name = name.trim();
     if (name.split(" ").length !== 2) {
-        throw new Error(back.USERNAME_ERROR);
+        throw new Error(back.ERROR_USUARIO);
     }
 };
 back.saldoCorrecto = function (saldo) {
@@ -96,24 +96,24 @@ back.saldoCorrecto = function (saldo) {
             index += 1;
         }
     } else {
-        back.ERROR_SALDO;
+        saldo = saldo;
     }
 };
-back.System.prototype.getServerPoints = function () {
+back.Sistema.prototype.puntosServidor = function () {
     "use strict";
-    return this.system.map(function (value) {
-        return value.users.map(function (user) {
+    return this.sistema.map(function (value) {
+        return value.usuarios.map(function (user) {
             return user.puntos;
         });
     });
 };
-back.System.prototype.getStages = function () {
+back.Sistema.prototype.secciones = function () {
     "use strict";
     var x = 0;
     var serverPtos;
-    while (this.getServerPoints()[x]) {
-        if (this.getServerPoints()[x].length !== 0) {
-            serverPtos = this.getServerPoints(this.getServerPoints()[x]);
+    while (this.puntosServidor()[x]) {
+        if (this.puntosServidor()[x].length !== 0) {
+            serverPtos = this.puntosServidor(this.puntosServidor()[x]);
         } else {
             serverPtos = serverPtos;
         }
@@ -121,15 +121,15 @@ back.System.prototype.getStages = function () {
     }
     return serverPtos;
 };
-back.System.prototype.getAllPoints = function () {
+back.Sistema.prototype.puntosTotales = function () {
     "use strict";
-    var allPoints;
+    var todosPuntos;
     var arrayPtos = [];
-    allPoints = this.getStages();
-    for (var x = 0; x < allPoints.length; x += 1) {
-        for (var y = 0; y < allPoints[x].length; y += 1) {
-            if (allPoints[x][y] !== undefined) {
-                arrayPtos.push(allPoints[x][y]);
+    todosPuntos = this.secciones();
+    for (var x = 0; x < todosPuntos.length; x += 1) {
+        for (var y = 0; y < todosPuntos[x].length; y += 1) {
+            if (todosPuntos[x][y] !== undefined) {
+                arrayPtos.push(todosPuntos[x][y]);
             } else {
                 arrayPtos = arrayPtos;
             }
@@ -137,33 +137,33 @@ back.System.prototype.getAllPoints = function () {
     }
     return arrayPtos;
 };
-back.System.prototype.separaSecciones = function () {
+back.Sistema.prototype.separaSecciones = function () {
     "use strict";
-    var less = 0;
-    var middle = 0;
-    var countLess = 0;
-    var countMiddle = 0;
-    var countGreater = 0;
-    var counter = [];
+    var menor = 0;
+    var medio = 0;
+    var contadorMenor = 0;
+    var contadorMedio = 0;
+    var contadorMayor = 0;
+    var contador = [];
     var ptos;
-    ptos = this.getAllPoints().sort(function (a, b) {
+    ptos = this.puntosTotales().sort(function (a, b) {
         return a - b;
     });
-    less = parseInt(ptos[ptos.length - 1] / 3);
-    middle = parseInt(less * 2);
+    menor = parseInt(ptos[ptos.length - 1] / 3);
+    medio = parseInt(menor * 2);
     ptos.map(function (val) {
-        if (val < less) {
-            countLess = countLess + 1;
+        if (val < menor) {
+            contadorMenor = contadorMenor + 1;
         } else {
-            if (val < middle) {
-                countMiddle = countMiddle + 1;
+            if (val < medio) {
+                contadorMedio = contadorMedio + 1;
             } else {
-                countGreater = countGreater + 1;
+                contadorMayor = contadorMayor + 1;
             }
         }
     });
-    counter = [countLess, countMiddle, countGreater];
-    return counter;
+    contador = [contadorMenor, contadorMedio, contadorMayor];
+    return contador;
 };
 back.puntosCorrectos = function (puntos, tipoCuenta) {
     "use strict";
@@ -172,7 +172,7 @@ back.puntosCorrectos = function (puntos, tipoCuenta) {
         while (puntos[index]) {
             if (Number.isNaN(parseInt(puntos[index]))) {
                 index = undefined;
-                throw new Error(back.USER_POINTS_ERROR);
+                throw new Error(back.ERROR_PUNTOS);
             }
             index += 1;
         }
@@ -212,23 +212,23 @@ back.esFechaCorrecta = function (accDate) {
     }
     return isRight;
 };
-back.isValidTime = function (tiempo) {
+back.tiempoCorrecto = function (tiempo) {
     "use strict";
-    var minutes = parseInt((tiempo.split(":"))[0]);
-    var seconds = parseInt((tiempo.split(":"))[1]);
-    var result = `${(minutes && seconds < 60 ? tiempo : "")}`;
-    return result;
+    var minutos = parseInt((tiempo.split(":"))[0]);
+    var segundos = parseInt((tiempo.split(":"))[1]);
+    var total = `${(minutos && segundos < 60 ? tiempo : "")}`;
+    return total;
 };
-back.setConexionTime = function (tiempo) {
+back.tiempoVacio = function (tiempo) {
     "use strict";
-    var minutes;
-    var seconds;
-    var time;
+    var minutos;
+    var segundos;
+    var total;
     try {
-        minutes = (tiempo.split(":"))[0];
-        seconds = (tiempo.split(":"))[1];
-        time = minutes + seconds;
-        if (!tiempo || isNaN(time) || seconds.length !== 2) {
+        minutos = (tiempo.split(":"))[0];
+        segundos = (tiempo.split(":"))[1];
+        total = minutos + segundos;
+        if (!tiempo || isNaN(total) || segundos.length !== 2) {
             throw new Error(back.ERROR_TIEMPO);
         }
         return tiempo;
@@ -236,10 +236,10 @@ back.setConexionTime = function (tiempo) {
         throw new Error(back.ERROR_TIEMPO);
     }
 };
-back.System.prototype.nombreUnico = function (name) {
+back.Sistema.prototype.nombreUnico = function (name) {
     "use strict";
-    return this.system.some(function (value) {
-        return value.users.some(function (valor) {
+    return this.sistema.some(function (value) {
+        return value.usuarios.some(function (valor) {
             if (valor.nombreCuenta === name) {
                 throw new Error(back.REPEATED_NAME);
             }
@@ -248,26 +248,26 @@ back.System.prototype.nombreUnico = function (name) {
 };
 back.incluyeUsuariosBorrados = function (user) {
     "use strict";
-    back.deletedUsers.push(user);
+    back.usuariosBorrados.push(user);
 };
-back.System.prototype.borraUsuario = function (name, server) {
+back.Sistema.prototype.borraUsuario = function (name, server) {
     "use strict";
     var deleted = [];
-    var arr = server.users.map(function (value) {
+    var arr = server.usuarios.map(function (value) {
         return value.nombreCuenta;
     });
     var pos = arr.indexOf(name);
-    deleted = server.users.splice(pos, 1);
+    deleted = server.usuarios.splice(pos, 1);
     deleted.forEach(back.incluyeUsuariosBorrados);
 };
 back.add = function (a, b) {
     "use strict";
     return a + b;
 };
-back.System.prototype.totalSaldo = function () {
+back.Sistema.prototype.totalSaldo = function () {
     "use strict";
-    var saldoTotal = this.system.map(function (value) {
-        return value.users.map(function (valor) {
+    var saldoTotal = this.sistema.map(function (value) {
+        return value.usuarios.map(function (valor) {
             var saldo;
             if (!Number.isNaN(parseInt(valor.saldo))) {
                 saldo = parseInt(valor.saldo);
@@ -288,33 +288,33 @@ back.System.prototype.totalSaldo = function () {
     });
     return saldoTotal.reduce(back.add);
 };
-back.System.prototype.totalUsuarios = function () {
+back.Sistema.prototype.totalUsuarios = function () {
     "use strict";
-    var totalUsers = this.system.map(function (value) {
-        return value.users.length;
+    var totalUsuarios = this.sistema.map(function (value) {
+        return value.usuarios.length;
     });
-    return totalUsers.reduce(back.add);
+    return totalUsuarios.reduce(back.add);
 };
 
-back.System.prototype.getTotalTime = function (tiempo, server) {
+back.Sistema.prototype.getTotalTime = function (tiempo, server) {
     "use strict";
-    var minutes = back.System.prototype.getTotalMinutes(tiempo, server);
-    var seconds = back.System.prototype.getTotalSeconds(tiempo, server);
+    var minutes = back.Sistema.prototype.getTotalMinutes(tiempo, server);
+    var seconds = back.Sistema.prototype.getTotalSeconds(tiempo, server);
     minutes = minutes + Math.floor(seconds / 60);
     seconds = seconds % 60;
     return `${minutes}:${seconds}`;
 };
-back.System.prototype.getTotalMinutes = function (tiempo, server) {
+back.Sistema.prototype.getTotalMinutes = function (tiempo, server) {
     "use strict";
-    var totalMinutes = server.users.map(function (value) {
+    var totalMinutes = server.usuarios.map(function (value) {
             var minutes = parseInt((value.tiempo.split(":"))[0]);
             return (!Number.isNaN(minutes)) ? parseInt(minutes) : 0;
     });
     return totalMinutes.reduce(back.add);
 };
-back.System.prototype.getTotalSeconds = function (tiempo, server) {
+back.Sistema.prototype.getTotalSeconds = function (tiempo, server) {
     "use strict";
-    var totalSeconds = server.users.map(function (value) {
+    var totalSeconds = server.usuarios.map(function (value) {
             var seconds = parseInt((value.tiempo.split(":"))[1]);
             return (!Number.isNaN(seconds)) ? parseInt(seconds) : 0;
     });
