@@ -20,6 +20,9 @@ function $(id) {
     return document.getElementById(id);
 }
 
+// Try:
+var $ = document.getElementById.bind(document);
+
 front.generateDate = function () {
     "use strict";
     $("fecha").value = back.getDate();
